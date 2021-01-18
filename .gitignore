@@ -1,5 +1,6 @@
 # XDK_Workbench Spesific
 debug
+.settings
 
 # Prerequisites
 *.d
