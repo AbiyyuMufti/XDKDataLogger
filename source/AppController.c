@@ -87,10 +87,12 @@ void * AccelerometerCallback(xTimerHandle xTimer)
 	(void) xTimer;
 	Retcode_T retcode = RETCODE_OK;
 	char buffer[150] = {0};
-	retcode = readAcc(buffer);
+	int size = 0;
+	retcode = readAcc(buffer, &size);
 	if (RETCODE_OK == retcode)
 	{
-		printf("%s;\n", buffer);
+		sendViaUDP(buffer, size);
+		//printf("%s;\n", buffer);
 	}
 }
 
@@ -99,11 +101,13 @@ void * EnvironmentCallback(xTimerHandle xTimer)
 {
 	(void) xTimer;
 	Retcode_T retcode = RETCODE_OK;
-	char buffer3[150] = {0};
-	retcode = readEnv(buffer3);
+	char buffer[150] = {0};
+	int size = 0;
+	retcode = readEnv(buffer, &size);
 	if (RETCODE_OK == retcode)
 	{
-		printf("%s;\n", buffer3);
+		sendViaUDP(buffer, size);
+		//printf("%s;\n", buffer3);
 	}
 }
 
@@ -112,11 +116,13 @@ void * MagnetometerCallback(xTimerHandle xTimer)
 {
 	(void) xTimer;
 	Retcode_T retcode = RETCODE_OK;
-	char buffer2[150] = {0};
-	retcode = readMag(buffer2);
+	char buffer[150] = {0};
+	int size = 0;
+	retcode = readMag(buffer, &size);
 	if (RETCODE_OK == retcode)
 	{
-		printf("%s;\n", buffer2);
+		sendViaUDP(buffer, size);
+		//printf("%s;\n", buffer2);
 	}
 }
 
@@ -125,11 +131,13 @@ void * AmbientLightCallback(xTimerHandle xTimer)
 {
 	(void) xTimer;
 	Retcode_T retcode = RETCODE_OK;
-	char buffer4[150] = {0};
-	retcode = readLight(buffer4);
+	char buffer[150] = {0};
+	int size = 0;
+	retcode = readLight(buffer, &size);
 	if (RETCODE_OK == retcode)
 	{
-		printf("%s;\n", buffer4);
+		sendViaUDP(buffer, size);
+		//printf("%s;\n", buffer4);
 	}
 }
 
@@ -138,11 +146,13 @@ void * GyroscopeCallback(xTimerHandle xTimer)
 {
 	(void) xTimer;
 	Retcode_T retcode = RETCODE_OK;
-	char buffer1[150] = {0};
-	retcode = readGyr(buffer1);
+	char buffer[150] = {0};
+	int size = 0;
+	retcode = readGyr(buffer, &size);
 	if (RETCODE_OK == retcode)
 	{
-		printf("%s;\n", buffer1);
+		sendViaUDP(buffer, size);
+		//printf("%s;\n", buffer1);
 	}
 }
 
@@ -150,11 +160,13 @@ void * NoiseCallback(xTimerHandle xTimer)
 {
 	(void) xTimer;
 	Retcode_T retcode = RETCODE_OK;
-	char buffer5[150] = {0};
-	retcode = readNoise(buffer5);
+	char buffer[150] = {0};
+	int size = 0;
+	retcode = readNoise(buffer, &size);
 	if (RETCODE_OK == retcode)
 	{
-		printf("%s;\n", buffer5);
+		sendViaUDP(buffer, size);
+		//printf("%s;\n", buffer5);
 	}
 }
 

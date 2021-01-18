@@ -8,6 +8,7 @@
 #ifndef SOURCE_CONNECTIONHANDLER_H_
 #define SOURCE_CONNECTIONHANDLER_H_
 
+#include "XDK_Utils.h"
 #include "XDK_WLAN.h"
 #include "XDK_UDP.h"
 #include "XDK_ServalPAL.h"

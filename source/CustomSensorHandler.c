@@ -88,7 +88,7 @@ Retcode_T readAcc(char * buffer, int * size)
 	Retcode_T retcode = Sensor_GetAccel(&bma280);
 	if (RETCODE_OK == retcode)
 	{
-		size = sprintf(buffer, "BMA280:%s;%ld;%ld;%ld", getSNTPTime(), (long int) bma280.xAxisData, (long int) bma280.yAxisData, (long int) bma280.zAxisData);
+		*size = sprintf(buffer, "BMA280;%s;%ld;%ld;%ld", getSNTPTime(), (long int) bma280.xAxisData, (long int) bma280.yAxisData, (long int) bma280.zAxisData);
 	}
 	return retcode;
 }
@@ -102,7 +102,7 @@ Retcode_T readGyr(char * buffer, int * size)
 	retcode = Sensor_GetGyro(&bmg160);
 	if(RETCODE_OK == retcode)
 	{
-		int size = sprintf(buffer, "BMG160;%s;%ld;%ld;%ld", getSNTPTime(), (long int) bmg160.xAxisData, (long int) bmg160.yAxisData, (long int) bmg160.zAxisData);
+		*size = sprintf(buffer, "BMG160;%s;%ld;%ld;%ld", getSNTPTime(), (long int) bmg160.xAxisData, (long int) bmg160.yAxisData, (long int) bmg160.zAxisData);
 	}
 	return retcode;
 }
@@ -116,7 +116,7 @@ Retcode_T readMag(char * buffer, int * size)
 
 	if(RETCODE_OK == retcode)
 	{
-		size = sprintf(buffer, "BMM150;%s;%ld;%ld;%ld", getSNTPTime(), (long int) bmm150.xAxisData, (long int) bmm150.yAxisData, (long int) bmm150.zAxisData);
+		*size = sprintf(buffer, "BMM150;%s;%ld;%ld;%ld", getSNTPTime(), (long int) bmm150.xAxisData, (long int) bmm150.yAxisData, (long int) bmm150.zAxisData);
 	}
 	return retcode;
 }
@@ -129,7 +129,7 @@ Retcode_T readEnv(char * buffer, int * size)
 	retcode = Sensor_GetEnvironmental(&bme280);
 	if(RETCODE_OK == retcode)
 	{
-		size = sprintf(buffer, "BME280;%s;%ld;%ld;%ld", getSNTPTime(), (long int) bme280.pressure, (long int) bme280.temperature, (long int) bme280.humidity);
+		*size = sprintf(buffer, "BME280;%s;%ld;%ld;%ld", getSNTPTime(), (long int) bme280.pressure, (long int) bme280.temperature, (long int) bme280.humidity);
 	}
 	return retcode;
 }
@@ -144,7 +144,7 @@ Retcode_T readLight(char * buffer, int * size)
 
 	if(RETCODE_OK == retcode)
 	{
-		size = sprintf(buffer, "MAX44009;%s;%u", getSNTPTime(), (unsigned int) max44009);
+		*size = sprintf(buffer, "MAX44009;%s;%u", getSNTPTime(), (unsigned int) max44009);
 	}
 	return retcode;
 }
@@ -189,7 +189,7 @@ Retcode_T readNoise(char * buffer, int * size)
 
 	if(RETCODE_OK == retcode)
 	{
-		size = sprintf(buffer, "AKU340;%s;%f;%f;", getSNTPTime(), acousticData, spl);
+		*size = sprintf(buffer, "AKU340;%s;%f;%f", getSNTPTime(), acousticData, spl);
 	}
 	return retcode;
 }
