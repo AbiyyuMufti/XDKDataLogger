@@ -71,10 +71,6 @@
 #include "timers.h"
 
 
-/* constant definitions ***************************************************** */
-#define  XDK_APP_DELAY      UINT32_C(1000)
-/* local variables ********************************************************** */
-
 static CmdProcessor_T * AppCmdProcessor;/**< Handle to store the main Command processor handle to be used by run-time event driven threads */
 
 static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Application controller to be used by run-time blocking threads */
@@ -85,14 +81,83 @@ static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Applicat
 
 /* local functions ********************************************************** */
 
-xTimerHandle timerHandle;
 
-
-static void TimerCallback(xTimerHandle xTimer)
+void * AccelerometerCallback(xTimerHandle xTimer)
 {
 	(void) xTimer;
-	printf("%s \r\n", getSNTPTime());
+	Retcode_T retcode = RETCODE_OK;
+	char buffer[150] = {0};
+	retcode = readAcc(buffer);
+	if (RETCODE_OK == retcode)
+	{
+		printf("%s;\n", buffer);
+	}
 }
+
+
+void * EnvironmentCallback(xTimerHandle xTimer)
+{
+	(void) xTimer;
+	Retcode_T retcode = RETCODE_OK;
+	char buffer3[150] = {0};
+	retcode = readEnv(buffer3);
+	if (RETCODE_OK == retcode)
+	{
+		printf("%s;\n", buffer3);
+	}
+}
+
+
+void * MagnetometerCallback(xTimerHandle xTimer)
+{
+	(void) xTimer;
+	Retcode_T retcode = RETCODE_OK;
+	char buffer2[150] = {0};
+	retcode = readMag(buffer2);
+	if (RETCODE_OK == retcode)
+	{
+		printf("%s;\n", buffer2);
+	}
+}
+
+
+void * AmbientLightCallback(xTimerHandle xTimer)
+{
+	(void) xTimer;
+	Retcode_T retcode = RETCODE_OK;
+	char buffer4[150] = {0};
+	retcode = readLight(buffer4);
+	if (RETCODE_OK == retcode)
+	{
+		printf("%s;\n", buffer4);
+	}
+}
+
+
+void * GyroscopeCallback(xTimerHandle xTimer)
+{
+	(void) xTimer;
+	Retcode_T retcode = RETCODE_OK;
+	char buffer1[150] = {0};
+	retcode = readGyr(buffer1);
+	if (RETCODE_OK == retcode)
+	{
+		printf("%s;\n", buffer1);
+	}
+}
+
+void * NoiseCallback(xTimerHandle xTimer)
+{
+	(void) xTimer;
+	Retcode_T retcode = RETCODE_OK;
+	char buffer5[150] = {0};
+	retcode = readNoise(buffer5);
+	if (RETCODE_OK == retcode)
+	{
+		printf("%s;\n", buffer5);
+	}
+}
+
 
 /**
  * @brief Responsible for controlling application control flow.
@@ -129,10 +194,11 @@ static void AppControllerEnable(void * param1, uint32_t param2)
     Retcode_T retcode = ConnectionEnable();
     if (RETCODE_OK == retcode)
     {
-    	BaseType_t timerResult = xTimerStart(timerHandle, TIMERBLOCKTIME);
-    	if(pdTRUE != timerResult) {
-    		retcode = RETCODE(RETCODE_SEVERITY_ERROR, RETCODE_OUT_OF_RESOURCES);
-    	}
+    	retcode = xdkSensor_Enable();
+    }
+    if (RETCODE_OK == retcode)
+    {
+    	createAndStartTimer();
     }
     if (RETCODE_OK == retcode)
     {
@@ -166,19 +232,7 @@ static void AppControllerSetup(void * param1, uint32_t param2)
     Retcode_T retcode = ConnectionSetup(AppCmdProcessor);
     if (RETCODE_OK == retcode)
     {
-    	timerHandle = xTimerCreate(
-    			(const char * const) "My Timer",// used only for debugging purposes
-				SECONDS(1),                     // timer period
-				TIMER_AUTORELOAD_ON,            // Autoreload on or off - should the timer
-												// start again after it expired?
-				NULL,                           // optional identifier
-				TimerCallback					// static callback function
-				);
-    	if(NULL == timerHandle)
-    	{
-    		assert(pdFAIL);
-    		return;
-    	}
+    	retcode = xdkSensor_Setup();
     }
     if (RETCODE_OK == retcode)
     {

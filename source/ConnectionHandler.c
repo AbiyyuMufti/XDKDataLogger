@@ -5,6 +5,7 @@
  *      Author: abiyy
  */
 
+#include <stdio.h>
 #include "ConnectionHandler.h"
 #include "BCDS_Assert.h"
 #include "BCDS_CmdProcessor.h"
@@ -50,12 +51,13 @@ Retcode_T sendViaUDP(char * message, uint32_t size)
 	uint8_t data[size];
 	memcpy(data, message, sizeof(data));
 	retcode = UDP_Open(&handle);
-	if (retcode == RETCODE_OK)
+	if (RETCODE_OK == retcode)
 	{
 		retcode = UDP_Send(handle, DEST_SERVER_IP, DEST_SERVER_PORT, data, sizeof(data));
 	}
-	if (retcode != RETCODE_OK)
+	if (RETCODE_OK != retcode)
 	{
+		UDP_Close(handle);
 		return retcode;
 	}
 	retcode = UDP_Close(handle);
@@ -178,7 +180,7 @@ Retcode_T SyncSNTPTimeStamp(void)
 }
 
 
-char * getSNTPTime()
+char * getSNTPTime(void)
 {
 	return timezoneISO8601format;
 }

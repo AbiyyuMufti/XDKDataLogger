@@ -65,7 +65,7 @@
 /**
  * Timeout for SNTP server time sync
  */
-#define APP_RESPONSE_FROM_SNTP_SERVER_TIMEOUT           UINT32_C(10000)
+#define APP_RESPONSE_FROM_SNTP_SERVER_TIMEOUT           UINT32_C(1000)
 
 /* utility functions ****************************************************** */
 
@@ -74,7 +74,7 @@ Retcode_T InspectAndActOnWlanNetworkStatus(void);
 Retcode_T ConnectionSetup(CmdProcessor_T *cmdProcessor);
 Retcode_T ConnectionEnable(void);
 Retcode_T SyncSNTPTimeStamp(void);
-char * getSNTPTime();
+char * getSNTPTime(void);
 
 
 #endif /* SOURCE_CONNECTIONHANDLER_H_ */
