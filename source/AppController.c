@@ -56,6 +56,8 @@
 
 /* own header files */
 #include "AppController.h"
+#include "ConnectionHandler.h"
+#include "TimerHandler.h"
 
 /* system header files */
 #include <stdio.h>
@@ -66,6 +68,8 @@
 #include "XDK_Utils.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "timers.h"
+
 
 /* constant definitions ***************************************************** */
 #define  XDK_APP_DELAY      UINT32_C(1000)
@@ -81,6 +85,15 @@ static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Applicat
 
 /* local functions ********************************************************** */
 
+xTimerHandle timerHandle;
+
+
+static void TimerCallback(xTimerHandle xTimer)
+{
+	(void) xTimer;
+	printf("%s \r\n", getSNTPTime());
+}
+
 /**
  * @brief Responsible for controlling application control flow.
  * Any application logic which is blocking in nature or fixed time dependent
@@ -92,13 +105,11 @@ static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Applicat
 static void AppControllerFire(void* pvParameters)
 {
     BCDS_UNUSED(pvParameters);
-
     /* A function that implements a task must not exit or attempt to return to
      its caller function as there is nothing to return to. */
     while (1)
     {
-        /* code to implement application control flow */
-        vTaskDelay(XDK_APP_DELAY);
+    	SyncSNTPTimeStamp();
     }
 }
 
@@ -115,9 +126,14 @@ static void AppControllerEnable(void * param1, uint32_t param2)
 {
     BCDS_UNUSED(param1);
     BCDS_UNUSED(param2);
-    Retcode_T retcode = RETCODE_OK;
-
-    /* @todo - Enable necessary modules for the application and check their return values */
+    Retcode_T retcode = ConnectionEnable();
+    if (RETCODE_OK == retcode)
+    {
+    	BaseType_t timerResult = xTimerStart(timerHandle, TIMERBLOCKTIME);
+    	if(pdTRUE != timerResult) {
+    		retcode = RETCODE(RETCODE_SEVERITY_ERROR, RETCODE_OUT_OF_RESOURCES);
+    	}
+    }
     if (RETCODE_OK == retcode)
     {
         if (pdPASS != xTaskCreate(AppControllerFire, (const char * const ) "AppController", TASK_STACK_SIZE_APP_CONTROLLER, NULL, TASK_PRIO_APP_CONTROLLER, &AppControllerHandle))
@@ -147,11 +163,27 @@ static void AppControllerSetup(void * param1, uint32_t param2)
 {
     BCDS_UNUSED(param1);
     BCDS_UNUSED(param2);
-    Retcode_T retcode = RETCODE_OK;
-
-    /* @todo - Setup the necessary modules required for the application */
-
-    retcode = CmdProcessor_Enqueue(AppCmdProcessor, AppControllerEnable, NULL, UINT32_C(0));
+    Retcode_T retcode = ConnectionSetup(AppCmdProcessor);
+    if (RETCODE_OK == retcode)
+    {
+    	timerHandle = xTimerCreate(
+    			(const char * const) "My Timer",// used only for debugging purposes
+				SECONDS(1),                     // timer period
+				TIMER_AUTORELOAD_ON,            // Autoreload on or off - should the timer
+												// start again after it expired?
+				NULL,                           // optional identifier
+				TimerCallback					// static callback function
+				);
+    	if(NULL == timerHandle)
+    	{
+    		assert(pdFAIL);
+    		return;
+    	}
+    }
+    if (RETCODE_OK == retcode)
+    {
+    	retcode = CmdProcessor_Enqueue(AppCmdProcessor, AppControllerEnable, NULL, UINT32_C(0));
+    }
     if (RETCODE_OK != retcode)
     {
         printf("AppControllerSetup : Failed \r\n");
