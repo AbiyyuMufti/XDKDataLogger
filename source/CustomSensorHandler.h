@@ -16,7 +16,7 @@
 Retcode_T xdkSensor_Setup(void);
 Retcode_T xdkSensor_Enable(void);
 
-Retcode_T readSensorValues(void);
+Retcode_T readSensorValues(char * buffer, int * size);
 Retcode_T readAcc(char * buffer, int * size);
 Retcode_T readGyr(char * buffer, int * size);
 Retcode_T readMag(char * buffer, int * size);

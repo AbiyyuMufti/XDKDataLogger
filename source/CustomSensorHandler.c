@@ -57,6 +57,35 @@ static Sensor_Setup_T SensorSetup =
 };/**< Sensor setup parameters */
 
 
+const float aku340ConversionRatio = pow(10,(-38/20));
+
+
+static float calcSoundPressure(float acousticRawValue)
+{
+    return (acousticRawValue/aku340ConversionRatio);
+}
+
+
+const float SplRatio = pow(10,(-38/20)) * 20e-6;
+
+
+static float calcSoundPressureLevel(float magnitude)
+{
+    float spl;
+
+    if(magnitude == 0){
+        spl = 25;
+    }
+
+    else {
+        spl = (20*log10(magnitude/SplRatio)-20);
+    }
+
+    return spl;
+}
+
+
+
 Retcode_T xdkSensor_Setup(void)
 {
 	return Sensor_Setup(&SensorSetup);
@@ -69,14 +98,42 @@ Retcode_T xdkSensor_Enable(void)
 }
 
 
-Retcode_T readSensorValues(void)
+Retcode_T readSensorValues(char * buffer, int * size)
 {
     Sensor_Value_T sensorValue;
 
     memset(&sensorValue, 0x00, sizeof(sensorValue));
 
     Retcode_T retcode = Sensor_GetData(&sensorValue);
+    int size1, size2, size3, size4, size5, size6;
+    char buffer1[150] = {0}, buffer2[150] = {0}, buffer3[150] = {0}, buffer4[150] = {0}, buffer5[150] = {0}, buffer6[150] = {0};
+    const char * holder1 = "BMA280;%s;%ld;%ld;%ld";
+    const char * holder2 = "BMG160;%s;%ld;%ld;%ld";
+    const char * holder3 = "BMM150;%s;%ld;%ld;%ld";
+    const char * holder4 = "BME280;%s;%lu;%f;%lu";
+    const char * holder5 = "MAX44009;%s;%u";
+    const char * holder6 = "AKU340;%s;%f;%f";
 
+    if(RETCODE_OK == retcode)
+    {
+    	size1 = sprintf(buffer1, holder1, getSNTPTime(), (long int) sensorValue.Accel.X, (long int) sensorValue.Accel.Y, (long int) sensorValue.Accel.Z);
+    	size2 = sprintf(buffer2, holder2, getSNTPTime(), (long int) sensorValue.Gyro.X, (long int) sensorValue.Gyro.Y, (long int) sensorValue.Gyro.Z);
+    	size3 = sprintf(buffer3, holder3, getSNTPTime(), (long int) sensorValue.Mag.X, (long int) sensorValue.Mag.Y, (long int) sensorValue.Mag.Z);
+    	size4 = sprintf(buffer4, holder4, getSNTPTime(), (unsigned long int) sensorValue.Pressure, sensorValue.Temp, (unsigned long int) sensorValue.RH);
+    	size5 = sprintf(buffer5, holder5, getSNTPTime(), (unsigned int) sensorValue.Light);
+    	float acousticData, spl;
+    	acousticData = sensorValue.Noise;
+    	spl = calcSoundPressureLevel(acousticData);
+    	size6 = sprintf(buffer6, holder6, acousticData, spl);
+    	* size = sprintf(buffer, "%s\t%s\t%s\t%s\t%s\t%s", buffer1, buffer2, buffer3, buffer4, buffer5, buffer6);
+    	//2021-01-26T02:55:20Z;
+    	//BMA280;9;-7;1020;
+    	//BMG160;244;-122;0;
+    	//BMM150;-17;-3;-54;
+    	//BME280;100309;22961.000000;60;
+    	//MAX44009;2880;
+    	//AKU340;0.001030;34.233944
+    }
     return retcode;
 }
 
@@ -150,39 +207,10 @@ Retcode_T readLight(char * buffer, int * size)
 }
 
 
-const float aku340ConversionRatio = pow(10,(-38/20));
-
-
-static float calcSoundPressure(float acousticRawValue)
-{
-    return (acousticRawValue/aku340ConversionRatio);
-}
-
-
-const float SplRatio = pow(10,(-38/20)) * 20e-6;
-
-
-static float calcSoundPressureLevel(float magnitude)
-{
-    float spl;
-
-    if(magnitude == 0){
-        spl = 25;
-    }
-
-    else {
-        spl = (20*log10(magnitude/SplRatio)-20);
-    }
-
-    return spl;
-}
-
-
 Retcode_T readNoise(char * buffer, int * size)
 {
 	Retcode_T retcode;
-	float acousticData, sp, spl;
-	double si;
+	float acousticData, spl;
 
 	retcode = Sensor_GetNoise(&acousticData);
     spl = calcSoundPressureLevel(acousticData);

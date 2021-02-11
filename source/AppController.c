@@ -82,95 +82,6 @@ static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Applicat
 /* local functions ********************************************************** */
 
 
-void * AccelerometerCallback(xTimerHandle xTimer)
-{
-	(void) xTimer;
-	Retcode_T retcode = RETCODE_OK;
-	char buffer[150] = {0};
-	int size = 0;
-	retcode = readAcc(buffer, &size);
-	if (RETCODE_OK == retcode)
-	{
-		sendViaUDP(buffer, size);
-		//printf("%s;\n", buffer);
-	}
-}
-
-
-void * EnvironmentCallback(xTimerHandle xTimer)
-{
-	(void) xTimer;
-	Retcode_T retcode = RETCODE_OK;
-	char buffer[150] = {0};
-	int size = 0;
-	retcode = readEnv(buffer, &size);
-	if (RETCODE_OK == retcode)
-	{
-		sendViaUDP(buffer, size);
-		//printf("%s;\n", buffer3);
-	}
-}
-
-
-void * MagnetometerCallback(xTimerHandle xTimer)
-{
-	(void) xTimer;
-	Retcode_T retcode = RETCODE_OK;
-	char buffer[150] = {0};
-	int size = 0;
-	retcode = readMag(buffer, &size);
-	if (RETCODE_OK == retcode)
-	{
-		sendViaUDP(buffer, size);
-		//printf("%s;\n", buffer2);
-	}
-}
-
-
-void * AmbientLightCallback(xTimerHandle xTimer)
-{
-	(void) xTimer;
-	Retcode_T retcode = RETCODE_OK;
-	char buffer[150] = {0};
-	int size = 0;
-	retcode = readLight(buffer, &size);
-	if (RETCODE_OK == retcode)
-	{
-		sendViaUDP(buffer, size);
-		//printf("%s;\n", buffer4);
-	}
-}
-
-
-void * GyroscopeCallback(xTimerHandle xTimer)
-{
-	(void) xTimer;
-	Retcode_T retcode = RETCODE_OK;
-	char buffer[150] = {0};
-	int size = 0;
-	retcode = readGyr(buffer, &size);
-	if (RETCODE_OK == retcode)
-	{
-		sendViaUDP(buffer, size);
-		//printf("%s;\n", buffer1);
-	}
-}
-
-void * NoiseCallback(xTimerHandle xTimer)
-{
-	(void) xTimer;
-	Retcode_T retcode = RETCODE_OK;
-	char buffer[150] = {0};
-	int size = 0;
-	retcode = readNoise(buffer, &size);
-	if (RETCODE_OK == retcode)
-	{
-		sendViaUDP(buffer, size);
-		//printf("%s;\n", buffer5);
-	}
-}
-
-
 /**
  * @brief Responsible for controlling application control flow.
  * Any application logic which is blocking in nature or fixed time dependent
@@ -189,6 +100,7 @@ static void AppControllerFire(void* pvParameters)
     	SyncSNTPTimeStamp();
     }
 }
+
 
 /**
  * @brief To enable the necessary modules for the application
@@ -210,7 +122,12 @@ static void AppControllerEnable(void * param1, uint32_t param2)
     }
     if (RETCODE_OK == retcode)
     {
+#if AllAtOnce
     	createAndStartTimer();
+#else
+    	createAndStartTimers();
+#endif
+
     }
     if (RETCODE_OK == retcode)
     {

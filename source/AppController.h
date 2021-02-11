@@ -49,22 +49,9 @@
 /* local interface declaration ********************************************** */
 #include "XDK_Utils.h"
 
-/* local type and macro definitions */
+#define AllAtOnce 1
 
-/* local function prototype declarations */
 
-/* local module global variable declarations */
-
-/* local inline function definitions */
-/**
- * @brief Gives control to the Application controller.
- *
- * @param[in] cmdProcessorHandle
- * Handle of the main command processor which shall be used based on the application needs
- *
- * @param[in] param2
- * Unused
- */
 void AppController_Init(void * cmdProcessorHandle, uint32_t param2);
 
 #endif /* APPCONTROLLER_H_ */
