@@ -82,6 +82,33 @@ static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Applicat
 /* local functions ********************************************************** */
 
 
+void setupConfigurations(bool useSD)
+{
+	if(useSD)
+	{
+		// read xml from sd card
+	}
+	else
+	{
+		XDKSetup.allAtOnce = ALLATONCE;
+
+		if(XDKSetup.allAtOnce)
+		{
+			XDKSetup.def_t = DEFTIME;
+		}
+		else
+		{
+			XDKSetup.acc_t = ACCTIME;
+			XDKSetup.gyr_t = GYRTIME;
+			XDKSetup.mag_t = MAGTIME;
+			XDKSetup.env_t = ENVTIME;
+			XDKSetup.lig_t = LIGTIME;
+			XDKSetup.aku_t = AKUTIME;
+		}
+	}
+}
+
+
 /**
  * @brief Responsible for controlling application control flow.
  * Any application logic which is blocking in nature or fixed time dependent
@@ -127,7 +154,6 @@ static void AppControllerEnable(void * param1, uint32_t param2)
 #else
     	createAndStartTimers();
 #endif
-
     }
     if (RETCODE_OK == retcode)
     {
@@ -158,6 +184,7 @@ static void AppControllerSetup(void * param1, uint32_t param2)
 {
     BCDS_UNUSED(param1);
     BCDS_UNUSED(param2);
+    setupConfigurations();
     Retcode_T retcode = ConnectionSetup(AppCmdProcessor);
     if (RETCODE_OK == retcode)
     {

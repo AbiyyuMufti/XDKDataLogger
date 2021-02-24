@@ -113,6 +113,7 @@ void * SensorsCallback(xTimerHandle xTimer)
 	printf("%s\n", buffer);
 }
 
+
 void createAndStartTimer(void)
 {
 	sensorTimer = xTimerCreate((const char * const) "Sen", MILLISECONDS(100),
@@ -121,6 +122,7 @@ void createAndStartTimer(void)
 	BaseType_t timerResult = xTimerStart(sensorTimer, TIMERBLOCKTIME);
 	if(pdTRUE != timerResult) { assert(pdFAIL); return; }
 }
+
 
 void createAndStartTimers(void)
 {

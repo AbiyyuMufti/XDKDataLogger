@@ -73,11 +73,12 @@ static float calcSoundPressureLevel(float magnitude)
 {
     float spl;
 
-    if(magnitude == 0){
+    if(magnitude == 0)
+    {
         spl = 25;
     }
-
-    else {
+    else
+    {
         spl = (20*log10(magnitude/SplRatio)-20);
     }
 
