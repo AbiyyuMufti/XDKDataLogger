@@ -48,6 +48,7 @@
 
 /* local interface declaration ********************************************** */
 #include "XDK_Utils.h"
+#include "BCDS_Retcode.h"
 
 #define ALLATONCE true
 #define DEFTIME 10
@@ -73,10 +74,8 @@ typedef struct {
 XDKConfigs XDKSetup;
 
 
-void setupConfigurations(bool useSD = false);
-
-
 void AppController_Init(void * cmdProcessorHandle, uint32_t param2);
+Retcode_T parameterConfigurations(bool useSD);
 
 #endif /* APPCONTROLLER_H_ */
 

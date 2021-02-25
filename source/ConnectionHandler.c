@@ -96,6 +96,7 @@ Retcode_T InspectAndActOnWlanNetworkStatus(void)
 
 Retcode_T ConnectionSetup(CmdProcessor_T *cmdProcessor)
 {
+	//
 	Retcode_T retcode = WLAN_Setup(&WLANSetupInfo);
     if (RETCODE_OK == retcode)
     {

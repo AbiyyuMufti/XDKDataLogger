@@ -28,7 +28,7 @@ void * GyroscopeCallback(xTimerHandle xTimer);
 void * NoiseCallback(xTimerHandle xTimer);
 void * SensorsCallback(xTimerHandle xTimer);
 
-void createAndStartTimer(void);
+void createAndStartOneTimer(void);
 void createAndStartTimers(void);
 
 #endif /* SOURCE_TIMERHANDLER_H_ */

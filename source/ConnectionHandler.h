@@ -68,6 +68,7 @@
  */
 #define APP_RESPONSE_FROM_SNTP_SERVER_TIMEOUT           UINT32_C(1000)
 
+
 /* utility functions ****************************************************** */
 
 Retcode_T sendViaUDP(char * message, uint32_t size);
