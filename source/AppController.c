@@ -82,16 +82,16 @@ static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Applicat
 /* local functions ********************************************************** */
 
 
-void setupConfigurations(bool useSD)
+Retcode_T parameterConfigurations(bool useSD)
 {
 	if(useSD)
 	{
 		// read xml from sd card
+		return RETCODE_FAILURE;
 	}
 	else
-	{
+	{	// default setup: change value in AppController.h
 		XDKSetup.allAtOnce = ALLATONCE;
-
 		if(XDKSetup.allAtOnce)
 		{
 			XDKSetup.def_t = DEFTIME;
@@ -105,6 +105,7 @@ void setupConfigurations(bool useSD)
 			XDKSetup.lig_t = LIGTIME;
 			XDKSetup.aku_t = AKUTIME;
 		}
+		return RETCODE_OK;
 	}
 }
 
@@ -142,26 +143,32 @@ static void AppControllerEnable(void * param1, uint32_t param2)
 {
     BCDS_UNUSED(param1);
     BCDS_UNUSED(param2);
+
+    // Enabling connections
     Retcode_T retcode = ConnectionEnable();
+
+    // Enabling all sensors
     if (RETCODE_OK == retcode)
     {
     	retcode = xdkSensor_Enable();
     }
+
+    // Enabling and starting timers
     if (RETCODE_OK == retcode)
     {
-#if AllAtOnce
-    	createAndStartTimer();
-#else
     	createAndStartTimers();
-#endif
     }
+
+    // Creating and starting Task
     if (RETCODE_OK == retcode)
     {
-        if (pdPASS != xTaskCreate(AppControllerFire, (const char * const ) "AppController", TASK_STACK_SIZE_APP_CONTROLLER, NULL, TASK_PRIO_APP_CONTROLLER, &AppControllerHandle))
+        if (pdPASS != xTaskCreate(AppControllerFire, (const char * const ) "AppController",
+        		TASK_STACK_SIZE_APP_CONTROLLER, NULL, TASK_PRIO_APP_CONTROLLER, &AppControllerHandle))
         {
             retcode = RETCODE(RETCODE_SEVERITY_ERROR, RETCODE_OUT_OF_RESOURCES);
         }
     }
+
     if (RETCODE_OK != retcode)
     {
         printf("AppControllerEnable : Failed \r\n");
@@ -184,12 +191,23 @@ static void AppControllerSetup(void * param1, uint32_t param2)
 {
     BCDS_UNUSED(param1);
     BCDS_UNUSED(param2);
-    setupConfigurations();
-    Retcode_T retcode = ConnectionSetup(AppCmdProcessor);
+
+    // check if SD Card are being used
+
+    // xdk parameter configurations
+    Retcode_T retcode = parameterConfigurations(false);
+
+    // setup connections
+    if (RETCODE_OK == retcode)
+    {
+    	retcode = ConnectionSetup(AppCmdProcessor);
+    }
+    // setup sensors
     if (RETCODE_OK == retcode)
     {
     	retcode = xdkSensor_Setup();
     }
+    // setup main process
     if (RETCODE_OK == retcode)
     {
     	retcode = CmdProcessor_Enqueue(AppCmdProcessor, AppControllerEnable, NULL, UINT32_C(0));
