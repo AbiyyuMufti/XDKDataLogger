@@ -112,7 +112,7 @@ void * SensorsCallback(xTimerHandle xTimer)
 	int size = 0;
 	retcode = readSensorValues(buffer, &size);
 	sendViaUDP(buffer, size);
-	printf("%s\n", buffer);
+	//printf("%s\n", buffer);
 }
 
 

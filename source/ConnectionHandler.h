@@ -43,7 +43,7 @@
  * DEST_SERVER_IP is the destination server IP address of the web server we will send UDP payloads.
  * If you want to test this example without setting up your own server, you can use publicly available services.
  */
-#define DEST_SERVER_IP                  XDK_NETWORK_IPV4(192, 168, 0, 73)
+#define DEST_SERVER_IP                  XDK_NETWORK_IPV4(192, 168, 0, 74)
 
 /**
  * DEST_SERVER_PORT is the UDP port to which we will send UDP payloads.
