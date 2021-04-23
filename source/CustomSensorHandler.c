@@ -21,12 +21,12 @@ static Sensor_Setup_T SensorSetup =
 		{
 				.Accel = true,
 				.Mag = true,
-				.Gyro = true,
+				.Gyro = false,
 				.Humidity = true,
 				.Temp = true,
 				.Pressure = true,
-				.Light = true,
-				.Noise = true,
+				.Light = false,
+				.Noise = false,
 		},
 		.Config =
 		{
@@ -116,7 +116,7 @@ Retcode_T readSensorValues(char * buffer, int * size)
     const char * holder6 = "AKU340;%f;%f";
     char timeSNTP[50] = {0};
 
-    int timeSize = sprintf(timeSNTP, "%s", getSNTPTime());
+    //int timeSize = sprintf(timeSNTP, "%s", getSNTPTime());
     //printf("%s\n", timeSNTP);
     if(RETCODE_OK == retcode)
     {
@@ -131,7 +131,8 @@ Retcode_T readSensorValues(char * buffer, int * size)
     	size5 = sprintf(buffer5, holder5, (unsigned long int) sensorValue.Light);
 
     	size6 = sprintf(buffer6, holder6, acousticData, spl);
-    	* size = sprintf(buffer, "%s\t%s\t%s\t%s\t%s\t%s\t%s", timeSNTP, buffer1, buffer2, buffer3, buffer4, buffer5, buffer6);
+    	// * size = sprintf(buffer, "%s\t%s\t%s\t%s\t%s\t%s\t%s", timeSNTP, buffer1, buffer2, buffer3, buffer4, buffer5, buffer6);
+    	* size = sprintf(buffer, "%s\t%s\t%s\t%s\t%s\t%s", buffer1, buffer2, buffer3, buffer4, buffer5, buffer6);
     	//printf("Endsize: %d\n", * size);
     	//2021-01-26T02:55:20Z;
     	//BMA280;9;-7;1020;

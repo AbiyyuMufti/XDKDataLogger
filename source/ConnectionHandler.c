@@ -118,14 +118,14 @@ Retcode_T ConnectionSetup(CmdProcessor_T *cmdProcessor)
 Retcode_T ConnectionEnable(void)
 {
     Retcode_T retcode = WLAN_Enable();
-    if (RETCODE_OK == retcode)
+    /*if (RETCODE_OK == retcode)
     {
     	retcode = ServalPAL_Enable();
     }
     if (RETCODE_OK == retcode)
     {
     	retcode = SNTP_Enable();
-    }
+    }*/
     if (RETCODE_OK == retcode)
     {
     	retcode = UDP_Enable();

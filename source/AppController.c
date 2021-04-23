@@ -75,6 +75,8 @@ static CmdProcessor_T * AppCmdProcessor;/**< Handle to store the main Command pr
 
 static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Application controller to be used by run-time blocking threads */
 
+static xTaskHandle SNTPSyncHandler = NULL;
+
 /* global variables ********************************************************* */
 
 /* inline functions ********************************************************* */
@@ -123,6 +125,31 @@ static void AppControllerFire(void* pvParameters)
     BCDS_UNUSED(pvParameters);
     /* A function that implements a task must not exit or attempt to return to
      its caller function as there is nothing to return to. */
+    Retcode_T retcode = RETCODE_OK;
+    char buffer[150*6] = {0};
+    int size = 0;
+    while (1)
+    {
+    	retcode = readSensorValues(buffer, &size);
+    	if(RETCODE_OK == retcode)
+    	{
+    		//sendViaUDP(buffer, size);
+    		//printf("%s\n", getSNTPTime());
+    		printf("%s\n", buffer);
+    	}
+    	else
+    	{
+    		printf("read sensor failed");
+    	}
+    	vTaskDelay(UINT32_C(10));
+    }
+}
+
+static void AppSynchSNTP(void* pvParameters)
+{
+    BCDS_UNUSED(pvParameters);
+    /* A function that implements a task must not exit or attempt to return to
+     its caller function as there is nothing to return to. */
     while (1)
     {
     	SyncSNTPTimeStamp();
@@ -154,10 +181,10 @@ static void AppControllerEnable(void * param1, uint32_t param2)
     }
 
     // Enabling and starting timers
-    if (RETCODE_OK == retcode)
+    /*if (RETCODE_OK == retcode)
     {
     	createAndStartTimers();
-    }
+    }*/
 
     // Creating and starting Task
     if (RETCODE_OK == retcode)
@@ -167,6 +194,12 @@ static void AppControllerEnable(void * param1, uint32_t param2)
         {
             retcode = RETCODE(RETCODE_SEVERITY_ERROR, RETCODE_OUT_OF_RESOURCES);
         }
+        /*if (pdPASS != xTaskCreate(AppSynchSNTP, (const char * const ) "SNTP_Sync",
+        		TASK_STACK_SIZE_APP_CONTROLLER, NULL, TASK_PRIO_APP_CONTROLLER, &SNTPSyncHandler))
+        {
+        	retcode = RETCODE(RETCODE_SEVERITY_ERROR, RETCODE_OUT_OF_RESOURCES);
+        }*/
+
     }
 
     if (RETCODE_OK != retcode)

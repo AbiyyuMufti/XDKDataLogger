@@ -9,7 +9,7 @@ Using Bosch XDK Measurement and logging it in to the database
 ### AppControllerEnable
 ### AppControllerFire
 ### Timer Tasks
-
+### SNTP Sync Tasks
 
 ## Configuration
 
