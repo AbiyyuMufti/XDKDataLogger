@@ -115,7 +115,7 @@ void * SensorsCallback(xTimerHandle xTimer)
 	//printf("%s\n", buffer);
 }
 
-
+/*
 void createAndStartMulitpleTimers(void)
 {
 	accTimers = xTimerCreate((const char * const) "Acc", MILLISECONDS(XDKSetup.acc_t),
@@ -177,3 +177,4 @@ void createAndStartTimers(void)
 		createAndStartMulitpleTimers();
 	}
 }
+*/
