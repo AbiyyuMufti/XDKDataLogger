@@ -58,7 +58,8 @@
 #include "AppController.h"
 #include "ConnectionHandler.h"
 #include "TimerHandler.h"
-
+#include "DS3231Handler.h"
+#include "I2CHandler.h"
 /* system header files */
 #include <stdio.h>
 
@@ -78,10 +79,12 @@ static xTaskHandle AppControllerHandle = NULL;/**< OS thread handle for Applicat
 static xTaskHandle SNTPSyncHandler = NULL;
 
 /* global variables ********************************************************* */
+XDKConfigs XDKSetup;
 
 /* inline functions ********************************************************* */
 
 /* local functions ********************************************************** */
+
 
 
 Retcode_T parameterConfigurations(bool useSD)
@@ -125,23 +128,33 @@ static void AppControllerFire(void* pvParameters)
     BCDS_UNUSED(pvParameters);
     /* A function that implements a task must not exit or attempt to return to
      its caller function as there is nothing to return to. */
-    Retcode_T retcode = RETCODE_OK;
+    //Retcode_T retcode = RETCODE_OK;
     char buffer[150*6] = {0};
     int size = 0;
     while (1)
     {
-    	retcode = readSensorValues(buffer, &size);
-    	if(RETCODE_OK == retcode)
+    	if(RETCODE_OK == readSensorValues(buffer, &size))
     	{
-    		//sendViaUDP(buffer, size);
     		//printf("%s\n", getSNTPTime());
     		printf("%s\n", buffer);
     	}
     	else
     	{
-    		printf("read sensor failed");
+    		printf("read sensor failed\n");
     	}
-    	vTaskDelay(UINT32_C(10));
+    	RTC_Time rtc_time;
+    	char date_time_to_print[50] = {0};
+    	if(RETCODE_OK == ds3231_get_time(&rtc_time))
+    	{
+    		convert_rtc_to_iso8601(&rtc_time, date_time_to_print, 50);
+    		printf(" %s\n", date_time_to_print);
+    	}
+    	else
+    	{
+    		printf("failed RTC\n");
+    	}
+		//sendViaUDP(buffer, size);
+    	vTaskDelay(UINT32_C(1000));
     }
 }
 
@@ -229,7 +242,11 @@ static void AppControllerSetup(void * param1, uint32_t param2)
 
     // xdk parameter configurations
     Retcode_T retcode = parameterConfigurations(false);
-
+    // i2c connection
+    if(RETCODE_OK == retcode)
+    {
+    	retcode = I2C_Initialize(AppCmdProcessor);
+    }
     // setup connections
     if (RETCODE_OK == retcode)
     {

@@ -71,8 +71,6 @@ typedef struct {
 	uint16_t aku_t;
 } XDKConfigs;
 
-XDKConfigs XDKSetup;
-
 
 void AppController_Init(void * cmdProcessorHandle, uint32_t param2);
 Retcode_T parameterConfigurations(bool useSD);
