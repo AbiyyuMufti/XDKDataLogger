@@ -142,7 +142,7 @@ static void AppControllerFire(void* pvParameters)
     		char buffer[150*7];
     		char timestamp[50] = "\0";
     		getTime(timestamp);
-    		int size = sprintf(buffer, "%s\t%s", timestamp, sensorBuffer);
+    		int size = sprintf(buffer, "%s%s", timestamp, sensorBuffer);
     		printf("%s\n", buffer);
     		sendViaUDP(buffer, size);
     	}
