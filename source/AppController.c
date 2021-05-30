@@ -61,7 +61,7 @@
 #include "DS3231Handler.h"
 #include "I2CHandler.h"
 #include "ParameterHandler.h"
-
+#include "CustomSensorHandler.h"
 /* system header files */
 #include <stdio.h>
 
@@ -86,6 +86,23 @@ XDKConfigs XDKSetup;
 
 /* local functions ********************************************************** */
 
+
+static void getTime(void)
+{
+	RTC_Time rtc_time;
+	char date_time_to_print[50] = {0};
+	if(RETCODE_OK == ds3231_get_time(&rtc_time))
+	{
+		convert_rtc_to_iso8601(&rtc_time, date_time_to_print, 50);
+		printf(" %s\n", date_time_to_print);
+	}
+	else
+	{
+		//printf("failed RTC\n");
+	}
+}
+
+
 /**
  * @brief Responsible for controlling application control flow.
  * Any application logic which is blocking in nature or fixed time dependent
@@ -100,7 +117,7 @@ static void AppControllerFire(void* pvParameters)
     /* A function that implements a task must not exit or attempt to return to
      its caller function as there is nothing to return to. */
     //Retcode_T retcode = RETCODE_OK;
-    char buffer[150*6] = {0};
+
     int size = 0;
     printf("\n");
     printf("all at once\t: %d\n", XDKSetup.all_at_once);
@@ -114,29 +131,21 @@ static void AppControllerFire(void* pvParameters)
     printf("type gyr\t:%d\n", XDKSetup.gyr_type);
     while (1)
     {
-
-    	if(RETCODE_OK == readSensorValues(buffer, &size))
+    	char buffer[150*6] = "\0";
+    	bool dataReady;
+    	if(XDKSetup.all_at_once)
+    	{
+    		readSensorValues(buffer, &XDKSetup, &dataReady);
+    	}
+    	else
+    	{
+    		readSensorValuesInDiffTime(buffer, &XDKSetup, &dataReady);
+    	}
+    	if(dataReady)
     	{
     		//printf("%s\n", getSNTPTime());
-    		printf("%s\n", buffer);
+    		printf("THIS --> %s\n", buffer);
     	}
-    	else
-    	{
-    		printf("read sensor failed\n");
-    	}
-    	RTC_Time rtc_time;
-    	char date_time_to_print[50] = {0};
-    	if(RETCODE_OK == ds3231_get_time(&rtc_time))
-    	{
-    		convert_rtc_to_iso8601(&rtc_time, date_time_to_print, 50);
-    		printf(" %s\n", date_time_to_print);
-    	}
-    	else
-    	{
-    		printf("failed RTC\n");
-    	}
-		//sendViaUDP(buffer, size);
-    	vTaskDelay(UINT32_C(1000));
     }
 }
 
@@ -251,7 +260,7 @@ static void AppControllerSetup(void * param1, uint32_t param2)
     // setup sensors
     if (RETCODE_OK == retcode)
     {
-    	retcode = xdkSensor_Setup();
+    	retcode = xdkSensor_Setup(&XDKSetup);
     }
     // setup main process
     if (RETCODE_OK == retcode)

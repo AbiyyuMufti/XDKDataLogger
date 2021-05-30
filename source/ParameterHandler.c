@@ -138,15 +138,6 @@ void parse_json_config(XDKConfigs * setup, char * json_str)
     		}
     	}
     }
-    printf("\n");
-    printf("%d\n", setup->all_at_once);
-    printf("%d\n", setup->default_time);
-    for (int i = 0; i < 6; i++){
-    	printf("%d\n", setup->use_sensors[i]);
-    	printf("%d\n", setup->sensor_time[i]);
-    }
-    printf("%d\n", setup->acc_type);
-    printf("%d\n", setup->gyr_type);
     cJSON_Delete(root);
 }
 
@@ -268,12 +259,6 @@ Retcode_T setup_config_reader(XDKConfigs * XDKSetup)
 		XDKSetup->use_sensors[3] = true;
 		XDKSetup->use_sensors[4] = true;
 		XDKSetup->use_sensors[5] = true;
-		XDKSetup->sensor_time[0] = ACCTIME;
-		XDKSetup->sensor_time[1] = GYRTIME;
-		XDKSetup->sensor_time[2] = MAGTIME;
-		XDKSetup->sensor_time[3] = ENVTIME;
-		XDKSetup->sensor_time[4] = LIGTIME;
-		XDKSetup->sensor_time[5] = AKUTIME;
 		retcode = RETCODE_OK;
 	}
 	return retcode;

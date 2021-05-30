@@ -17,7 +17,7 @@
 
 
 #define ALLATONCE true
-#define DEFTIME 10
+#define DEFTIME 1000
 #define ACCTIME 10
 #define GYRTIME 10
 #define MAGTIME 50
