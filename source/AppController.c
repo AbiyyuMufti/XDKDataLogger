@@ -60,6 +60,8 @@
 #include "TimerHandler.h"
 #include "DS3231Handler.h"
 #include "I2CHandler.h"
+#include "ParameterHandler.h"
+
 /* system header files */
 #include <stdio.h>
 
@@ -80,40 +82,9 @@ static xTaskHandle SNTPSyncHandler = NULL;
 
 /* global variables ********************************************************* */
 XDKConfigs XDKSetup;
-
 /* inline functions ********************************************************* */
 
 /* local functions ********************************************************** */
-
-
-
-Retcode_T parameterConfigurations(bool useSD)
-{
-	if(useSD)
-	{
-		// read xml from sd card
-		return RETCODE_FAILURE;
-	}
-	else
-	{	// default setup: change value in AppController.h
-		XDKSetup.allAtOnce = ALLATONCE;
-		if(XDKSetup.allAtOnce)
-		{
-			XDKSetup.def_t = DEFTIME;
-		}
-		else
-		{
-			XDKSetup.acc_t = ACCTIME;
-			XDKSetup.gyr_t = GYRTIME;
-			XDKSetup.mag_t = MAGTIME;
-			XDKSetup.env_t = ENVTIME;
-			XDKSetup.lig_t = LIGTIME;
-			XDKSetup.aku_t = AKUTIME;
-		}
-		return RETCODE_OK;
-	}
-}
-
 
 /**
  * @brief Responsible for controlling application control flow.
@@ -131,8 +102,19 @@ static void AppControllerFire(void* pvParameters)
     //Retcode_T retcode = RETCODE_OK;
     char buffer[150*6] = {0};
     int size = 0;
+    printf("\n");
+    printf("all at once\t: %d\n", XDKSetup.all_at_once);
+    printf("def time\t: %d\n", XDKSetup.default_time);
+    const char * table[] = {"Acc", "Gyr", "Mag", "Env", "Lig", "Aku"};
+    for (int i = 0; i < 6; i++){
+    	printf("%s active\t: %d\n", table[i], XDKSetup.use_sensors[i]);
+    	printf("%s time\t: %d\n", table[i], XDKSetup.sensor_time[i]);
+    }
+    printf("type acc\t: %d\n", XDKSetup.acc_type);
+    printf("type gyr\t:%d\n", XDKSetup.gyr_type);
     while (1)
     {
+
     	if(RETCODE_OK == readSensorValues(buffer, &size))
     	{
     		//printf("%s\n", getSNTPTime());
@@ -185,7 +167,11 @@ static void AppControllerEnable(void * param1, uint32_t param2)
     BCDS_UNUSED(param2);
 
     // Enabling connections
-    Retcode_T retcode = ConnectionEnable();
+    Retcode_T retcode = RETCODE_OK;
+    if (RETCODE_OK == retcode)
+    {
+    	retcode = ConnectionEnable();
+    }
 
     // Enabling all sensors
     if (RETCODE_OK == retcode)
@@ -239,9 +225,19 @@ static void AppControllerSetup(void * param1, uint32_t param2)
     BCDS_UNUSED(param2);
 
     // check if SD Card are being used
-
-    // xdk parameter configurations
-    Retcode_T retcode = parameterConfigurations(false);
+    Retcode_T retcode = RETCODE_OK;
+    if (RETCODE_OK == retcode)
+    {
+    	retcode = setup_sd_card_storage();
+    }
+    if (RETCODE_OK == retcode)
+    {
+    	retcode = enabling_sd_card_storage();
+    }
+    if (RETCODE_OK == retcode)
+    {
+    	retcode = setup_config_reader(&XDKSetup);
+    }
     // i2c connection
     if(RETCODE_OK == retcode)
     {

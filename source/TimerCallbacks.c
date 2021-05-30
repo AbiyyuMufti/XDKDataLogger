@@ -12,7 +12,9 @@
 #include "BCDS_Assert.h"
 #include "XDK_Utils.h"
 #include "AppController.h"
-
+#include "XDK_Utils.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 
 void * AccelerometerCallback(xTimerHandle xTimer)
 {

@@ -20,14 +20,14 @@
  * WLAN_CONNECT_WPA_SSID is the SSID of the WIFI network you want to connect to.
  */
 // #define WLAN_SSID                       "HomeSweetHome"
-#define WLAN_SSID                       "hamu1013"
+#define WLAN_SSID                       "Martin Router King"
 //#define WLAN_SSID                       "FRITZ!Box Fon WLAN 7360 SL"
 
 /**
  * WLAN_CONNECT_WPA_PASS is the WPA/WPA2 passphrase (pre-shared key) of your WIFI network.
  */
 // #define WLAN_PSK                        "1bnAbdillah"
-#define WLAN_PSK                        "MaMh1234"
+#define WLAN_PSK                        "BMBB032019"
 //#define WLAN_PSK                        "5456493324406555"
 
 /**
