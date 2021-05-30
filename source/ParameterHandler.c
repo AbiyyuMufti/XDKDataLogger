@@ -19,7 +19,9 @@
 #include "BCDS_SDCard_Driver.h"
 #include "BCDS_CmdProcessor.h"
 #include "BSP_BoardType.h"
-
+#include "XDK_Utils.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 
 #include "XdkAppInfo.h"
 #undef BCDS_MODULE_ID  /* Module ID define before including Basics package*/
@@ -27,7 +29,7 @@
 
 /* inline functions ********************************************************* */
 
-#define TEST_FILENAME               "xdk_config.json"	/**< Filename to open/write/read from SD-card */
+#define TEST_FILENAME               "xdk_config.txt"	/**< Filename to open/write/read from SD-card */
 #define FAT_FILE_SYSTEM             1 /** Macro to write data into SDCard either through FAT file system or SingleBlockWriteRead depends on the value **/
 #define WRITEREAD_DELAY             UINT32_C(2000)   /**< Millisecond delay for WriteRead timer task */
 
@@ -72,15 +74,6 @@ bool cJSON_ItemExists(cJSON *object, const char *string)
 	return 1;
 }
 
-typedef struct {
-	bool all_at_once;
-	uint16_t default_time;
-	bool use_sensors[6];
-	uint16_t sensor_time[6];
-	bool acc_type;
-	bool gyr_type;
-} XDKConfigs;
-
 
 Storage_Setup_T StorageSetupInfo =
         {
@@ -110,14 +103,6 @@ Retcode_T enabling_sd_card_storage(void)
         /* This is only a warning error. So we will raise and proceed */
         Retcode_RaiseError(retcode);
         retcode = RETCODE_OK; /* SD card was not inserted */
-    }
-    if (RETCODE_OK == retcode)
-    {
-        fileDeleteRetcode = Storage_Delete(STORAGE_MEDIUM_SD_CARD, TEST_FILENAME);
-        if (RETCODE_OK != fileDeleteRetcode)
-        {
-            printf("File does not exist. \n\r");
-        }
     }
     if (RETCODE_OK == retcode)
     {
@@ -180,8 +165,10 @@ void read_xdk_config(void)
 	XDKConfigs XDKSetup;
     Retcode_T retcode = RETCODE_OK;
     retcode = Storage_Read(STORAGE_MEDIUM_SD_CARD, &readCredentials);
-
-    parse_json_config(&XDKSetup, json_str);
+    if(RETCODE_OK == retcode)
+    {
+    	parse_json_config(&XDKSetup, json_str);
+    }
 }
 
 
@@ -245,4 +232,49 @@ void sd_card_manager(void)
         }
         vTaskDelay(pdMS_TO_TICKS(WRITEREAD_DELAY));
     }
+}
+
+
+Retcode_T setup_config_reader(XDKConfigs * XDKSetup)
+{
+	Retcode_T retcode = RETCODE_FAILURE, ledRetcode = RETCODE_OK;
+	bool sdcardEject = false, status = false, sdcardInsert = false;
+	retcode = Storage_IsAvailable(STORAGE_MEDIUM_SD_CARD, &status);
+	uint8_t json_str[BUFFER_SIZE]; /* Temporary buffer for read file */
+	if ((RETCODE_OK == retcode) && (true == status))
+	{
+		Storage_Read_T readCredentials =
+		{
+				.FileName = TEST_FILENAME,
+				.ReadBuffer = json_str,
+				.BytesToRead = 512,
+				.ActualBytesRead = 0UL,
+				.Offset = 0UL,
+		};
+	    Retcode_T retcode = RETCODE_OK;
+	    retcode = Storage_Read(STORAGE_MEDIUM_SD_CARD, &readCredentials);
+	}
+	if (RETCODE_OK == retcode)
+	{
+		parse_json_config(XDKSetup, json_str);
+	}
+	else
+	{
+		XDKSetup->all_at_once = ALLATONCE;
+		XDKSetup->default_time = DEFTIME;
+		XDKSetup->use_sensors[0] = true;
+		XDKSetup->use_sensors[1] = true;
+		XDKSetup->use_sensors[2] = true;
+		XDKSetup->use_sensors[3] = true;
+		XDKSetup->use_sensors[4] = true;
+		XDKSetup->use_sensors[5] = true;
+		XDKSetup->sensor_time[0] = ACCTIME;
+		XDKSetup->sensor_time[1] = GYRTIME;
+		XDKSetup->sensor_time[2] = MAGTIME;
+		XDKSetup->sensor_time[3] = ENVTIME;
+		XDKSetup->sensor_time[4] = LIGTIME;
+		XDKSetup->sensor_time[5] = AKUTIME;
+		retcode = RETCODE_OK;
+	}
+	return retcode;
 }

@@ -12,7 +12,9 @@
 #include "BCDS_Assert.h"
 #include "XDK_Utils.h"
 #include "AppController.h"
-
+#include "XDK_Utils.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 
 void * AccelerometerCallback(xTimerHandle xTimer)
 {
@@ -115,7 +117,7 @@ void * SensorsCallback(xTimerHandle xTimer)
 	//printf("%s\n", buffer);
 }
 
-
+/*
 void createAndStartMulitpleTimers(void)
 {
 	accTimers = xTimerCreate((const char * const) "Acc", MILLISECONDS(XDKSetup.acc_t),
@@ -177,3 +179,4 @@ void createAndStartTimers(void)
 		createAndStartMulitpleTimers();
 	}
 }
+*/

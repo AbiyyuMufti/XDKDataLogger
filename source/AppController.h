@@ -50,30 +50,7 @@
 #include "XDK_Utils.h"
 #include "BCDS_Retcode.h"
 
-#define ALLATONCE true
-#define DEFTIME 10
-#define ACCTIME 10
-#define GYRTIME 10
-#define MAGTIME 50
-#define ENVTIME 40
-#define LIGTIME 800
-#define AKUTIME 100
-
-
-typedef struct {
-	bool allAtOnce;
-	uint16_t def_t;
-	uint16_t acc_t;
-	uint16_t gyr_t;
-	uint16_t mag_t;
-	uint16_t env_t;
-	uint16_t lig_t;
-	uint16_t aku_t;
-} XDKConfigs;
-
-
 void AppController_Init(void * cmdProcessorHandle, uint32_t param2);
-Retcode_T parameterConfigurations(bool useSD);
 
 #endif /* APPCONTROLLER_H_ */
 
