@@ -17,13 +17,7 @@
 
 
 #define ALLATONCE true
-#define DEFTIME 1000
-#define ACCTIME 10
-#define GYRTIME 10
-#define MAGTIME 50
-#define ENVTIME 40
-#define LIGTIME 800
-#define AKUTIME 100
+#define DEFTIME 100
 
 typedef struct {
 	bool all_at_once;

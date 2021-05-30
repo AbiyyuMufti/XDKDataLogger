@@ -20,15 +20,15 @@
  * WLAN_CONNECT_WPA_SSID is the SSID of the WIFI network you want to connect to.
  */
 // #define WLAN_SSID                       "HomeSweetHome"
-#define WLAN_SSID                       "Martin Router King"
-//#define WLAN_SSID                       "FRITZ!Box Fon WLAN 7360 SL"
+// #define WLAN_SSID                       "Martin Router King"
+#define WLAN_SSID                       "FRITZ!Box Fon WLAN 7360 SL"
 
 /**
  * WLAN_CONNECT_WPA_PASS is the WPA/WPA2 passphrase (pre-shared key) of your WIFI network.
  */
 // #define WLAN_PSK                        "1bnAbdillah"
-#define WLAN_PSK                        "BMBB032019"
-//#define WLAN_PSK                        "5456493324406555"
+// #define WLAN_PSK                        "BMBB032019"
+#define WLAN_PSK                        "5456493324406555"
 
 /**
  * WLAN_USERNAME is the Enterprise WIFI network username(unused if IS_ENTERPRISE_WIFI_SELECTED is false)
@@ -49,7 +49,7 @@
  */
 // #define DEST_SERVER_IP                  XDK_NETWORK_IPV4(192, 168, 0, 74)
 // #define DEST_SERVER_IP                  XDK_NETWORK_IPV4(192, 168, 137, 1)
-#define DEST_SERVER_IP                  XDK_NETWORK_IPV4(192, 168, 178, 23)
+#define DEST_SERVER_IP                  XDK_NETWORK_IPV4(192, 168, 178, 24)
 
 /**
  * DEST_SERVER_PORT is the UDP port to which we will send UDP payloads.

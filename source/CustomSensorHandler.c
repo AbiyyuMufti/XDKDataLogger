@@ -134,21 +134,21 @@ Retcode_T readSensorValuesInDiffTime(char * buffer, XDKConfigs * XDKSetup, bool 
     	thisTurn[i] = ((current - lastTime[i]) >= XDKSetup->sensor_time[i]);
     }
 
-	if (RETCODE_OK == retcode && (SensorSetup.Enable.Accel && thisTurn[0]))
+	if (RETCODE_OK == retcode && (SensorSetup.Enable.Accel && ((current - lastTime[0]) >= XDKSetup->sensor_time[0])))
 	{
 		readAcc(BMA280Buffer);
 		strcat(buffer, BMA280Buffer);
 		lastTime[0] = xTaskGetTickCount();
 		*ready = true;
 	}
-	if (RETCODE_OK == retcode && (SensorSetup.Enable.Gyro && thisTurn[1]))
+	if (RETCODE_OK == retcode && (SensorSetup.Enable.Gyro && ((current - lastTime[1]) >= XDKSetup->sensor_time[2])))
 	{
 		readGyr(BMG160Buffer);
 		strcat(buffer, BMG160Buffer);
 		lastTime[1] = xTaskGetTickCount();
 		*ready = true;
 	}
-	if (RETCODE_OK == retcode && (SensorSetup.Enable.Mag && thisTurn[2]))
+	if (RETCODE_OK == retcode && (SensorSetup.Enable.Mag &&((current - lastTime[2]) >= XDKSetup->sensor_time[2])))
 	{
 		readMag(BMM150Buffer);
     	strcat(buffer, BMM150Buffer);
@@ -156,7 +156,7 @@ Retcode_T readSensorValuesInDiffTime(char * buffer, XDKConfigs * XDKSetup, bool 
     	*ready = true;
 	}
 
-	if (RETCODE_OK == retcode && (((SensorSetup.Enable.Humidity && SensorSetup.Enable.Temp) && SensorSetup.Enable.Pressure) && thisTurn[3]))
+	if (RETCODE_OK == retcode && (SensorSetup.Enable.Pressure && ((current - lastTime[3]) >= XDKSetup->sensor_time[3])))
 	{
 		readEnv(BME280Buffer);
 		strcat(buffer, BME280Buffer);
@@ -164,14 +164,14 @@ Retcode_T readSensorValuesInDiffTime(char * buffer, XDKConfigs * XDKSetup, bool 
 		*ready = true;
 	}
 
-	if (RETCODE_OK == retcode && (SensorSetup.Enable.Light && thisTurn[4]))
+	if (RETCODE_OK == retcode && (SensorSetup.Enable.Light && ((current - lastTime[3]) >= XDKSetup->sensor_time[3])))
 	{
 		readLight(MAX44009Buffer);
 		strcat(buffer, MAX44009Buffer);
 		lastTime[4] = xTaskGetTickCount();
 		*ready = true;
 	}
-	if (RETCODE_OK == retcode && (SensorSetup.Enable.Noise && thisTurn[5]))
+	if (RETCODE_OK == retcode && (SensorSetup.Enable.Noise && ((current - lastTime[3]) >= XDKSetup->sensor_time[3])))
 	{
 		readNoise(AKU340Buffer);
     	strcat(buffer, AKU340Buffer);
@@ -246,91 +246,6 @@ Retcode_T readSensorValues(char * buffer, XDKConfigs * XDKSetup, bool * ready)
 	}
 	return retcode;
 }
-
-
-Retcode_T readSensorValues2(char * buffer, int * size)
-{
-	Retcode_T retcode = RETCODE_FAILURE;
-    Sensor_Value_T sensorValue;
-    memset(&sensorValue, 0x00, sizeof(sensorValue));
-
-    static const char * BMA280Holder = "BMA280;%ld;%ld;%ld";
-    static const char * BMG160Holder = "BMG160;%ld;%ld;%ld";
-    static const char * BMM150Holder = "BMM150;%ld;%ld;%ld";
-    static const char * BME280Holder = "BME280;%lu;%.2f;%lu";
-    static const char * MAX44009Holder = "MAX44009;%lu";
-    static const char * AKU340Holder = "AKU340;%f;%.2f";
-    char BMA280Buffer[150] = {0}, BMG160Buffer[150] = {0}, BMM150Buffer[150] = {0};
-    char BME280Buffer[150] = {0}, MAX44009Buffer[150] = {0}, AKU340Buffer[150] = {0};
-
-    retcode = Sensor_GetData(&sensorValue);
-
-    if (RETCODE_OK == retcode)
-    {
-    	float acousticData, spl;
-    	acousticData = sensorValue.Noise;
-    	spl = calcSoundPressureLevel(acousticData);
-
-    	sprintf(BMA280Buffer, BMA280Holder, (long int) sensorValue.Accel.X, (long int) sensorValue.Accel.Y, (long int) sensorValue.Accel.Z);
-    	sprintf(BMG160Buffer, BMG160Holder, (long int) sensorValue.Gyro.X, (long int) sensorValue.Gyro.Y, (long int) sensorValue.Gyro.Z);
-		sprintf(BMM150Buffer, BMM150Holder, (long int) sensorValue.Mag.X, (long int) sensorValue.Mag.Y, (long int) sensorValue.Mag.Z);
-		sprintf(BME280Buffer, BME280Holder, (unsigned long int) sensorValue.Pressure, sensorValue.Temp/1000.00, (unsigned long int) sensorValue.RH);
-		sprintf(MAX44009Buffer, MAX44009Holder, (unsigned long int) sensorValue.Light);
-		sprintf(AKU340Buffer, AKU340Holder, acousticData, spl);
-		* size = sprintf(buffer, "%s\t%s\t%s\t%s\t%s\t%s", BMA280Buffer, BMG160Buffer, BMM150Buffer, BME280Buffer, MAX44009Buffer, AKU340Buffer);
-    }
-	return retcode;
-}
-
-
-
-Retcode_T readSensorValues1(char * buffer, int * size)
-{
-    Sensor_Value_T sensorValue;
-    memset(&sensorValue, 0x00, sizeof(sensorValue));
-    Retcode_T retcode = Sensor_GetData(&sensorValue);
-
-    char buffer1[150] = {0}, buffer2[150] = {0}, buffer3[150] = {0}, buffer4[150] = {0}, buffer5[150] = {0}, buffer6[150] = {0};
-    const char * holder1 = "BMA280;%ld;%ld;%ld";
-    const char * holder2 = "BMG160;%ld;%ld;%ld";
-    const char * holder3 = "BMM150;%ld;%ld;%ld";
-    const char * holder4 = "BME280;%lu;%.2f;%lu";
-    const char * holder5 = "MAX44009;%lu";
-    const char * holder6 = "AKU340;%.2f;%.2f";
-    char timeSNTP[50] = {0};
-
-    //int timeSize = sprintf(timeSNTP, "%s", getSNTPTime());
-    //printf("%s\n", timeSNTP);
-    if(RETCODE_OK == retcode)
-    {
-    	float acousticData, spl;
-    	acousticData = sensorValue.Noise;
-    	spl = calcSoundPressureLevel(acousticData);
-
-    	int size1, size2, size3, size4, size5, size6;
-    	size1 = sprintf(buffer1, holder1, (long int) sensorValue.Accel.X, (long int) sensorValue.Accel.Y, (long int) sensorValue.Accel.Z);
-    	size2 = sprintf(buffer2, holder2, (long int) sensorValue.Gyro.X, (long int) sensorValue.Gyro.Y, (long int) sensorValue.Gyro.Z);
-    	size3 = sprintf(buffer3, holder3, (long int) sensorValue.Mag.X, (long int) sensorValue.Mag.Y, (long int) sensorValue.Mag.Z);
-    	size4 = sprintf(buffer4, holder4, (unsigned long int) sensorValue.Pressure, sensorValue.Temp, (unsigned long int) sensorValue.RH);
-    	size5 = sprintf(buffer5, holder5, (unsigned long int) sensorValue.Light);
-
-    	size6 = sprintf(buffer6, holder6, acousticData, spl);
-    	// * size = sprintf(buffer, "%s\t%s\t%s\t%s\t%s\t%s\t%s", timeSNTP, buffer1, buffer2, buffer3, buffer4, buffer5, buffer6);
-    	* size = sprintf(buffer, "%s\t%s\t%s\t%s\t%s\t%s", buffer1, buffer2, buffer3, buffer4, buffer5, buffer6);
-    	//printf("Endsize: %d\n", * size);
-    	//2021-01-26T02:55:20Z;
-    	//BMA280;9;-7;1020;
-    	//BMG160;244;-122;0;
-    	//BMM150;-17;-3;-54;
-    	//BME280;100309;22961.000000;60;
-    	//MAX44009;2880;
-    	//AKU340;0.001030;34.233944
-    }
-    return retcode;
-}
-
-
-//Retcode_T readSensorsValues()
 
 
 Retcode_T readAcc(char * buffer)

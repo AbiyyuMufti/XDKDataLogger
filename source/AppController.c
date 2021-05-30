@@ -86,22 +86,30 @@ XDKConfigs XDKSetup;
 
 /* local functions ********************************************************** */
 
-
-static void getTime(void)
+static void getTime(char * buffer)
 {
-	RTC_Time rtc_time;
-	char date_time_to_print[50] = {0};
-	if(RETCODE_OK == ds3231_get_time(&rtc_time))
+	// TODO:: IF POSSIBLE DETERMINE IN SETUP CONFIGURATION --> for example using SD Card
+	bool useRTC = true, useSNTP = false;
+
+	if(useRTC)
 	{
-		convert_rtc_to_iso8601(&rtc_time, date_time_to_print, 50);
-		printf(" %s\n", date_time_to_print);
+		RTC_Time rtc_time;
+		char date_time_to_print[50] = {0};
+		if(RETCODE_OK == ds3231_get_time(&rtc_time))
+		{
+			convert_rtc_to_iso8601(&rtc_time, date_time_to_print, 50);
+			strcat(buffer, date_time_to_print);
+		}
+		else
+		{
+			strcat(buffer, "2000-01-01T00:00:00Z");
+		}
 	}
-	else
+	if(useSNTP)
 	{
-		//printf("failed RTC\n");
+		strcat(buffer, getSNTPTime());
 	}
 }
-
 
 /**
  * @brief Responsible for controlling application control flow.
@@ -117,34 +125,26 @@ static void AppControllerFire(void* pvParameters)
     /* A function that implements a task must not exit or attempt to return to
      its caller function as there is nothing to return to. */
     //Retcode_T retcode = RETCODE_OK;
-
-    int size = 0;
-    printf("\n");
-    printf("all at once\t: %d\n", XDKSetup.all_at_once);
-    printf("def time\t: %d\n", XDKSetup.default_time);
-    const char * table[] = {"Acc", "Gyr", "Mag", "Env", "Lig", "Aku"};
-    for (int i = 0; i < 6; i++){
-    	printf("%s active\t: %d\n", table[i], XDKSetup.use_sensors[i]);
-    	printf("%s time\t: %d\n", table[i], XDKSetup.sensor_time[i]);
-    }
-    printf("type acc\t: %d\n", XDKSetup.acc_type);
-    printf("type gyr\t:%d\n", XDKSetup.gyr_type);
     while (1)
     {
-    	char buffer[150*6] = "\0";
+    	char sensorBuffer[150*6] = "\0";
     	bool dataReady;
     	if(XDKSetup.all_at_once)
     	{
-    		readSensorValues(buffer, &XDKSetup, &dataReady);
+    		readSensorValues(sensorBuffer, &XDKSetup, &dataReady);
     	}
     	else
     	{
-    		readSensorValuesInDiffTime(buffer, &XDKSetup, &dataReady);
+    		readSensorValuesInDiffTime(sensorBuffer, &XDKSetup, &dataReady);
     	}
     	if(dataReady)
     	{
-    		//printf("%s\n", getSNTPTime());
-    		printf("THIS --> %s\n", buffer);
+    		char buffer[150*7];
+    		char timestamp[50] = "\0";
+    		getTime(timestamp);
+    		int size = sprintf(buffer, "%s\t%s", timestamp, sensorBuffer);
+    		printf("%s\n", buffer);
+    		sendViaUDP(buffer, size);
     	}
     }
 }

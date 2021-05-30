@@ -36,11 +36,11 @@
 /* Ram buffers
  * BUFFERSIZE should be between 512 and 1024, depending on available ram on efm32
  */
-#define BUFFER_SIZE                 UINT16_C(512)
+#define BUFFER_SIZE                 UINT16_C(1024)
 #define SINGLE_BLOCK                UINT8_C(1)      /**< SD- Card Single block write or read */
 #define DRIVE_ZERO                  UINT8_C(0)      /**< SD Card Drive 0 location */
 #define SECTOR_VALUE                UINT8_C(6)      /**< SDC Disk sector value */
-#define SINGLE_SECTOR_LEN           UINT32_C(512)   /**< Single sector size in SDcard */
+#define SINGLE_SECTOR_LEN           UINT32_C(1024)   /**< Single sector size in SDcard */
 
 
 /* local functions ********************************************************** */
@@ -149,7 +149,7 @@ void read_xdk_config(void)
 	{
 			.FileName = TEST_FILENAME,
 			.ReadBuffer = json_str,
-			.BytesToRead = 1000,
+			.BytesToRead = 1024,
 			.ActualBytesRead = 0UL,
 			.Offset = 0UL,
 	};
