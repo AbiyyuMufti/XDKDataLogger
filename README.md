@@ -8,8 +8,6 @@ The use case of this device with this software is describe in the following use 
 
 ![alt text](https://github.com/AbiyyuMufti/XDKDataLogger/blob/master/images/USE%20CASE%20DIAGRAM.png "UML Use Case Diagram")
 
-the
-
 ## Required tools
 - BOSCH XDK
 - Router
